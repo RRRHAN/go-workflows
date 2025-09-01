@@ -13,9 +13,23 @@ type options struct {
 
 	// ApplyMigrations automatically applies database migrations on startup.
 	ApplyMigrations bool
+
+	// ssl mode that used in dsn.
+	SSlMode sslMode
 }
 
 type option func(*options)
+
+type sslMode string
+
+const (
+	Disable    sslMode = "disable"
+	Allow      sslMode = "allow"
+	Prefer     sslMode = "prefer"
+	Require    sslMode = "require"
+	VerifyCa   sslMode = "verify-ca"
+	VerifyFull sslMode = "verify-full"
+)
 
 // WithApplyMigrations automatically applies database migrations on startup.
 func WithApplyMigrations(applyMigrations bool) option {
@@ -36,5 +50,12 @@ func WithBackendOptions(opts ...backend.BackendOption) option {
 		for _, opt := range opts {
 			opt(o.Options)
 		}
+	}
+}
+
+// WithSSLModeOptions allows to pass custom ssl mode.
+func WithSSLModeOptions(mode sslMode) option {
+	return func(o *options) {
+		o.SSlMode = mode
 	}
 }

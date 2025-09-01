@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"embed"
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,8 +18,8 @@ import (
 	"github.com/cschleiden/go-workflows/internal/metrickeys"
 	"github.com/cschleiden/go-workflows/internal/workflowerrors"
 	"github.com/cschleiden/go-workflows/workflow"
-	_ "github.com/go-sql-driver/postgres"
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -35,15 +34,24 @@ func NewPostgresBackend(host string, port int, user, password, database string, 
 	options := &options{
 		Options:         backend.ApplyOptions(),
 		ApplyMigrations: true,
+		SSlMode:         Prefer,
 	}
 
 	for _, opt := range opts {
 		opt(options)
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&interpolateParams=true", user, password, host, port, database)
+	dsn := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		host,
+		port,
+		user,
+		password,
+		database,
+		options.SSlMode,
+	)
 
-	db, err := sql.Open("postgres", dsn)
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		panic(err)
 	}
