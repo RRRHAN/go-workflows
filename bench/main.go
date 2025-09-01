@@ -21,7 +21,7 @@ import (
 	redisv8 "github.com/redis/go-redis/v9"
 )
 
-var b = flag.String("backend", "redis", "Backend to use. Supported backends are:\n- redis\n- mysql\n- sqlite\n")
+var b = flag.String("backend", "redis", "Backend to use. Supported backends are:\n- redis\n- mysql\n- sqlite\n- postgres\n")
 var timeout = flag.Duration("timeout", time.Second*30, "Timeout for the benchmark run")
 var scenario = flag.String("scenario", "basic", "Scenario to run. Support scenarios are:\n- basic\n")
 var runs = flag.Int("runs", 1, "Number of root workflows to start")
@@ -167,6 +167,31 @@ func getBackend(b string, opt ...backend.BackendOption) backend.Backend {
 		}
 
 		return b
+
+	case "postgres":
+		db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", "postgres", "", "localhost", 5432, "bench"))
+		if err != nil {
+			panic(err)
+		}
+
+		if _, err := db.Exec("DROP DATABASE IF EXISTS bench"); err != nil {
+			panic(fmt.Errorf("dropping database: %w", err))
+		}
+
+		if _, err := db.Exec("CREATE DATABASE bench"); err != nil {
+			panic(fmt.Errorf("creating database: %w", err))
+		}
+
+		if err := db.Close(); err != nil {
+			panic(err)
+		}
+
+		return monoprocess.NewMonoprocessBackend(
+			mysql.NewMysqlBackend("localhost", 5432, "postgres", "", "bench", mysql.WithBackendOptions(opt...),
+				mysql.WithMySQLOptions(func(db *sql.DB) {
+					db.SetMaxOpenConns(100)
+				})),
+		)
 
 	default:
 		panic("unknown backend " + b)
