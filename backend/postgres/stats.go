@@ -46,9 +46,9 @@ func (b *postgresBackend) GetStats(ctx context.Context) (*backend.Stats, error) 
 			FROM instances i
 			INNER JOIN pending_events pe ON i.instance_id = pe.instance_id
 			WHERE
-				i.state = ? AND i.completed_at IS NULL
-				AND (pe.visible_at IS NULL OR pe.visible_at <= ?)
-				AND (i.locked_until IS NULL OR i.locked_until < ?)
+				i.state = $1 AND i.completed_at IS NULL
+				AND (pe.visible_at IS NULL OR pe.visible_at <= $2)
+				AND (i.locked_until IS NULL OR i.locked_until < $3)
 			GROUP BY i.queue`,
 		core.WorkflowInstanceStateActive,
 		now, // event.visible_at
