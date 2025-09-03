@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS pending_events (
   event_type INT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
   schedule_event_id BIGINT NOT NULL,
-  attributes JSONB NOT NULL,
   visible_at TIMESTAMP
 );
 
@@ -55,7 +54,6 @@ CREATE TABLE IF NOT EXISTS history (
   event_type INT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
   schedule_event_id BIGINT NOT NULL,
-  attributes JSONB NOT NULL,
   visible_at TIMESTAMP
 );
 
@@ -74,7 +72,6 @@ CREATE TABLE IF NOT EXISTS activities (
   event_type INT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
   schedule_event_id BIGINT NOT NULL,
-  attributes JSONB NOT NULL,
   visible_at TIMESTAMP,
   locked_until TIMESTAMP,
   worker VARCHAR(64),
