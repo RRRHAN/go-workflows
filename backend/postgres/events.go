@@ -32,7 +32,7 @@ func insertEvents(ctx context.Context, tx *sql.Tx, tableName string, instance *c
 			aPH[i] = fmt.Sprintf("($%d, $%d, $%d, $%d)", (i*4)+1, (i*4)+2, (i*4)+3, (i*4)+4)
 		}
 
-		aquery := "INSERT IGNORE INTO `attributes` (event_id, instance_id, execution_id, data) VALUES" + strings.Join(aPH, ",")
+		aquery := "INSERT IGNORE INTO attributes (event_id, instance_id, execution_id, data) VALUES" + strings.Join(aPH, ",")
 		aargs := make([]any, 0, len(batchEvents)*4)
 
 		ph := make([]string, len(batchEvents))
@@ -40,8 +40,8 @@ func insertEvents(ctx context.Context, tx *sql.Tx, tableName string, instance *c
 			ph[i] = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", (i*8)+1, (i*8)+2, (i*8)+3, (i*8)+4, (i*8)+5, (i*8)+6, (i*8)+7, (i*8)+8)
 		}
 
-		query := "INSERT INTO `" + tableName +
-			"` (event_id, sequence_id, instance_id, execution_id, event_type, timestamp, schedule_event_id, visible_at) VALUES" +
+		query := "INSERT INTO " + tableName +
+			" (event_id, sequence_id, instance_id, execution_id, event_type, timestamp, schedule_event_id, visible_at) VALUES" +
 			strings.Join(ph, ",")
 
 		args := make([]any, 0, len(batchEvents)*8)
@@ -83,7 +83,7 @@ func insertEvents(ctx context.Context, tx *sql.Tx, tableName string, instance *c
 func removeFutureEvent(ctx context.Context, tx *sql.Tx, instance *core.WorkflowInstance, scheduleEventID int64) error {
 	_, err := tx.ExecContext(
 		ctx,
-		"DELETE `pending_events`, `attributes` FROM `pending_events` INNER JOIN `attributes` ON `pending_events`.event_id = `attributes`.event_id WHERE `pending_events`.instance_id = $1 AND `pending_events`.execution_id = $2 AND `pending_events`.schedule_event_id = $3 AND `pending_events`.visible_at IS NOT NULL",
+		"DELETE pending_events, attributes FROM pending_events INNER JOIN attributes ON pending_events.event_id = attributes.event_id WHERE pending_events.instance_id = $1 AND pending_events.execution_id = $2 AND pending_events.schedule_event_id = $3 AND pending_events.visible_at IS NOT NULL",
 		instance.InstanceID,
 		instance.ExecutionID,
 		scheduleEventID,
