@@ -34,7 +34,7 @@ func NewPostgresBackend(host string, port int, user, password, database string, 
 	options := &options{
 		Options:         backend.ApplyOptions(),
 		ApplyMigrations: true,
-		SSlMode:         Prefer,
+		SSlMode:         Require,
 	}
 
 	for _, opt := range opts {
@@ -93,8 +93,7 @@ func (mb *postgresBackend) Close() error {
 
 // Migrate applies any pending database migrations.
 func (mb *postgresBackend) Migrate() error {
-	schemaDsn := mb.dsn + "&multiStatements=true"
-	db, err := sql.Open("postgres", schemaDsn)
+	db, err := sql.Open("postgres", mb.dsn)
 	if err != nil {
 		return fmt.Errorf("opening schema database: %w", err)
 	}

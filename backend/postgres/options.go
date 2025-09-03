@@ -25,8 +25,7 @@ type sslMode string
 const (
 	Disable    sslMode = "disable"
 	Allow      sslMode = "allow"
-	Prefer     sslMode = "prefer"
-	Require    sslMode = "require"
+	Require    sslMode = "require" // default
 	VerifyCa   sslMode = "verify-ca"
 	VerifyFull sslMode = "verify-full"
 )

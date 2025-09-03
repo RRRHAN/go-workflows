@@ -14,7 +14,7 @@ import (
 )
 
 const testUser = "postgres"
-const testPassword = ""
+const testPassword = "root"
 
 // Creating and dropping databases is terribly inefficient, but easiest for complete test isolation. For
 // the future consider nested transactions, or manually TRUNCATE-ing the tables in-between tests.

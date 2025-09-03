@@ -14,6 +14,7 @@ import (
 	"github.com/cschleiden/go-workflows/backend"
 	"github.com/cschleiden/go-workflows/backend/monoprocess"
 	"github.com/cschleiden/go-workflows/backend/mysql"
+	"github.com/cschleiden/go-workflows/backend/postgres"
 	"github.com/cschleiden/go-workflows/backend/redis"
 	"github.com/cschleiden/go-workflows/backend/sqlite"
 	"github.com/cschleiden/go-workflows/client"
@@ -169,7 +170,7 @@ func getBackend(b string, opt ...backend.BackendOption) backend.Backend {
 		return b
 
 	case "postgres":
-		db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", "postgres", "", "localhost", 5432, "bench"))
+		db, err := sql.Open("pgx", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "localhost", 5432, "postgres", "root", "postgres"))
 		if err != nil {
 			panic(err)
 		}
@@ -187,8 +188,8 @@ func getBackend(b string, opt ...backend.BackendOption) backend.Backend {
 		}
 
 		return monoprocess.NewMonoprocessBackend(
-			mysql.NewMysqlBackend("localhost", 5432, "postgres", "", "bench", mysql.WithBackendOptions(opt...),
-				mysql.WithMySQLOptions(func(db *sql.DB) {
+			postgres.NewPostgresBackend("localhost", 5432, "postgres", "root", "bench", postgres.WithBackendOptions(opt...), postgres.WithSSLModeOptions(postgres.Disable),
+				postgres.WithPostgresOptions(func(db *sql.DB) {
 					db.SetMaxOpenConns(100)
 				})),
 		)
