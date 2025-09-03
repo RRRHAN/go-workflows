@@ -43,7 +43,7 @@ func Test_PostgresBackend(t *testing.T) {
 
 		options = append(options, backend.WithStickyTimeout(0))
 
-		return NewPostgresBackend("localhost", 5432, testUser, testPassword, dbName, WithBackendOptions(options...))
+		return NewPostgresBackend("localhost", 5432, testUser, testPassword, dbName, WithBackendOptions(options...), WithSSLModeOptions(Disable))
 	}, func(b test.TestBackend) {
 		if err := b.(*postgresBackend).db.Close(); err != nil {
 			panic(err)
@@ -88,7 +88,7 @@ func TestPostgresBackendE2E(t *testing.T) {
 
 		options = append(options, backend.WithStickyTimeout(0))
 
-		return NewPostgresBackend("localhost", 5432, testUser, testPassword, dbName, WithBackendOptions(options...))
+		return NewPostgresBackend("localhost", 5432, testUser, testPassword, dbName, WithBackendOptions(options...), WithSSLModeOptions(Disable))
 	}, func(b test.TestBackend) {
 		if err := b.(*postgresBackend).db.Close(); err != nil {
 			panic(err)
