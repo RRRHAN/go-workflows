@@ -32,7 +32,9 @@ func insertEvents(ctx context.Context, tx *sql.Tx, tableName string, instance *c
 			aPH[i] = fmt.Sprintf("($%d, $%d, $%d, $%d)", (i*4)+1, (i*4)+2, (i*4)+3, (i*4)+4)
 		}
 
-		aquery := "INSERT IGNORE INTO attributes (event_id, instance_id, execution_id, data) VALUES" + strings.Join(aPH, ",")
+		aquery := "INSERT INTO attributes (event_id, instance_id, execution_id, data) VALUES " +
+			strings.Join(aPH, ",") +
+			"ON CONFLICT (instance_id, execution_id, event_id) DO NOTHING"
 		aargs := make([]any, 0, len(batchEvents)*4)
 
 		ph := make([]string, len(batchEvents))
