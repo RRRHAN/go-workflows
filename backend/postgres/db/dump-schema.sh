@@ -1,25 +1,39 @@
 #!/bin/bash
 
-set -e
-set +x
+# === Configuration ===
+DB_NAME="go_workflows"
+DB_USER="postgres"
+DB_PASS="root"  
+DB_HOST="localhost"
+DB_PORT="5432"
+SCHEMA_NAME="public"
+OUTPUT_FILE="schema.sql"
 
-# Generate random DB name
-DB_NAME=workflows_$(date +%s)
+MIGRATION_DIR="./migrations"
 
-# Check if postgres container is running
-if [ ! "$(docker ps -q -f name=go-workflows-db-1)" ]; then
-    echo "Postgres container is not running"
-    exit 1
+echo "Running migrations from $MIGRATION_DIR..."
+migrate -path "$MIGRATION_DIR" -database "postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" up
+
+if [ $? -ne 0 ]; then
+  echo "Migration failed!"
+  exit 1
 fi
+echo "Migration completed."
 
-# Create database $DB_NAME
-docker exec go-workflows-db-1 postgres -uroot -proot -e "CREATE DATABASE $DB_NAME"
+echo "Dumping schema '$SCHEMA_NAME'..."
+pg_dump \
+  --username="$DB_USER" \
+  --host="$DB_HOST" \
+  --port="$DB_PORT" \
+  --schema="$SCHEMA_NAME" \
+  --no-owner \
+  --no-privileges \
+  --schema-only \
+  "$DB_NAME" > "$OUTPUT_FILE"
 
-# Run all migrations
-/Users/cschleiden/go/bin/migrate -database "postgres://root:root@tcp(127.0.0.1:3306)/$DB_NAME" -source file://./migrations up
-
-# Dump schema
-docker exec go-workflows-db-1 postgresdump -uroot -proot $DB_NAME | sed -e 's/^\/\*![0-9]\{5\}.*\/;$//g' > ./schema.sql
-
-# Drop database $DB_NAME
-docker exec go-workflows-db-1 postgres -uroot -proot -e "DROP DATABASE $DB_NAME"
+if [ $? -eq 0 ]; then
+  echo "Schema dumped successfully to $OUTPUT_FILE"
+else
+  echo "Error dumping schema"
+  exit 1
+fi

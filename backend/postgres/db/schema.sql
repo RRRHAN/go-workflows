@@ -1,215 +1,270 @@
--- Postgres dump 10.13  Distrib 8.0.33, for Linux (x86_64)
 --
--- Host: localhost    Database: workflows_1716351619
--- ------------------------------------------------------
--- Server version	8.0.33
-
-
-
-
-
-
-
-
-
-
-
-
---
--- Table structure for table `activities`
+-- PostgreSQL database dump
 --
 
-DROP TABLE IF EXISTS `activities`;
+\restrict 06PUqkTL2m8Xz2uUVrVzF5DQ8GwEh6MCzWN7NvAszvHtXvbmmEgefbbJBDOjU3l
 
+-- Dumped from database version 16.4 (Debian 16.4-1.pgdg120+1)
+-- Dumped by pg_dump version 16.10 (Homebrew)
 
-CREATE TABLE `activities` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `activity_id` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `instance_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `execution_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `event_type` int NOT NULL,
-  `timestamp` datetime NOT NULL,
-  `schedule_event_id` bigint NOT NULL,
-  `visible_at` datetime DEFAULT NULL,
-  `locked_until` datetime DEFAULT NULL,
-  `worker` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `queue` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `idx_activities_locked_until` (`locked_until`),
-  KEY `idx_activities_instance_id_execution_id_activity_id_worker_queue` (`instance_id`,`execution_id`,`activity_id`,`worker`,`queue`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA public;
 
 
 --
--- Dumping data for table `activities`
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
 --
 
-LOCK TABLES `activities` WRITE;
+COMMENT ON SCHEMA public IS 'standard public schema';
 
 
-UNLOCK TABLES;
+SET default_tablespace = '';
 
---
--- Table structure for table `attributes`
---
-
-DROP TABLE IF EXISTS `attributes`;
-
-
-CREATE TABLE `attributes` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `event_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `instance_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `execution_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `data` mediumblob NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_attributes_instance_id_execution_id_event_id` (`instance_id`,`execution_id`,`event_id`),
-  KEY `idx_attributes_event_id` (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+SET default_table_access_method = heap;
 
 --
--- Dumping data for table `attributes`
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
 
-LOCK TABLES `attributes` WRITE;
-
-
-UNLOCK TABLES;
-
---
--- Table structure for table `history`
---
-
-DROP TABLE IF EXISTS `history`;
-
-
-CREATE TABLE `history` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `event_id` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `sequence_id` bigint NOT NULL,
-  `instance_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `execution_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `event_type` int NOT NULL,
-  `timestamp` datetime NOT NULL,
-  `schedule_event_id` bigint NOT NULL,
-  `visible_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_history_instance_id_execution_id` (`instance_id`,`execution_id`),
-  KEY `idx_history_instance_id_execution_id_sequence_id` (`instance_id`,`execution_id`,`sequence_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE public.activities (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    activity_id character varying(64) NOT NULL,
+    instance_id character varying(128) NOT NULL,
+    execution_id character varying(128) NOT NULL,
+    event_type integer NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL,
+    schedule_event_id bigint NOT NULL,
+    visible_at timestamp without time zone,
+    locked_until timestamp without time zone,
+    worker character varying(64),
+    queue character varying(128) DEFAULT ''::character varying
+);
 
 
 --
--- Dumping data for table `history`
+-- Name: attributes; Type: TABLE; Schema: public; Owner: -
 --
 
-LOCK TABLES `history` WRITE;
-
-
-UNLOCK TABLES;
-
---
--- Table structure for table `instances`
---
-
-DROP TABLE IF EXISTS `instances`;
-
-
-CREATE TABLE `instances` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `instance_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `execution_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `parent_instance_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `parent_execution_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `parent_schedule_event_id` bigint DEFAULT NULL,
-  `metadata` blob,
-  `state` int NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `completed_at` datetime DEFAULT NULL,
-  `locked_until` datetime DEFAULT NULL,
-  `sticky_until` datetime DEFAULT NULL,
-  `worker` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `queue` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_instances_instance_id_execution_id` (`instance_id`,`execution_id`),
-  KEY `idx_instances_parent_instance_id_parent_execution_id` (`parent_instance_id`,`parent_execution_id`),
-  KEY `idx_instances_locked_until_completed_at_queue` (`completed_at`,`locked_until`,`sticky_until`,`worker`,`queue`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE public.attributes (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id character varying(128) NOT NULL,
+    instance_id character varying(128) NOT NULL,
+    execution_id character varying(128) NOT NULL,
+    data jsonb NOT NULL
+);
 
 
 --
--- Dumping data for table `instances`
+-- Name: history; Type: TABLE; Schema: public; Owner: -
 --
 
-LOCK TABLES `instances` WRITE;
-
-
-UNLOCK TABLES;
-
---
--- Table structure for table `pending_events`
---
-
-DROP TABLE IF EXISTS `pending_events`;
-
-
-CREATE TABLE `pending_events` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `event_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `sequence_id` bigint NOT NULL,
-  `instance_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `execution_id` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `event_type` int NOT NULL,
-  `timestamp` datetime NOT NULL,
-  `schedule_event_id` bigint NOT NULL,
-  `visible_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_pending_events_inid_exid` (`instance_id`,`execution_id`),
-  KEY `idx_pending_events_inid_exid_visible_at_schedule_event_id` (`instance_id`,`execution_id`,`visible_at`,`schedule_event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE public.history (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id character varying(64) NOT NULL,
+    sequence_id bigint NOT NULL,
+    instance_id character varying(128) NOT NULL,
+    execution_id character varying(128) NOT NULL,
+    event_type integer NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL,
+    schedule_event_id bigint NOT NULL,
+    visible_at timestamp without time zone
+);
 
 
 --
--- Dumping data for table `pending_events`
+-- Name: instances; Type: TABLE; Schema: public; Owner: -
 --
 
-LOCK TABLES `pending_events` WRITE;
+CREATE TABLE public.instances (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    instance_id character varying(128) NOT NULL,
+    execution_id character varying(128) NOT NULL,
+    parent_instance_id character varying(128),
+    parent_execution_id character varying(128),
+    parent_schedule_event_id bigint,
+    metadata jsonb,
+    state integer NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    completed_at timestamp without time zone,
+    locked_until timestamp without time zone,
+    sticky_until timestamp without time zone,
+    worker character varying(64),
+    queue character varying(128) DEFAULT ''::character varying
+);
 
-
-UNLOCK TABLES;
 
 --
--- Table structure for table `schema_migrations`
+-- Name: pending_events; Type: TABLE; Schema: public; Owner: -
 --
 
-DROP TABLE IF EXISTS `schema_migrations`;
-
-
-CREATE TABLE `schema_migrations` (
-  `version` bigint NOT NULL,
-  `dirty` tinyint(1) NOT NULL,
-  PRIMARY KEY (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE public.pending_events (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id character varying(128) NOT NULL,
+    sequence_id bigint NOT NULL,
+    instance_id character varying(128) NOT NULL,
+    execution_id character varying(128) NOT NULL,
+    event_type integer NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL,
+    schedule_event_id bigint NOT NULL,
+    visible_at timestamp without time zone
+);
 
 
 --
--- Dumping data for table `schema_migrations`
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
-LOCK TABLES `schema_migrations` WRITE;
-
-INSERT INTO `schema_migrations` VALUES (4,0);
-
-UNLOCK TABLES;
-
+CREATE TABLE public.schema_migrations (
+    version bigint NOT NULL,
+    dirty boolean NOT NULL
+);
 
 
+--
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
 
 
+--
+-- Name: attributes attributes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.attributes
+    ADD CONSTRAINT attributes_pkey PRIMARY KEY (id);
 
 
+--
+-- Name: history history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.history
+    ADD CONSTRAINT history_pkey PRIMARY KEY (id);
 
 
+--
+-- Name: activities idx_activities_instance_id_execution_id_activity_id_worker; Type: CONSTRAINT; Schema: public; Owner: -
+--
 
--- Dump completed on 2024-05-22  4:20:20
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT idx_activities_instance_id_execution_id_activity_id_worker UNIQUE (instance_id, execution_id, activity_id, worker);
+
+
+--
+-- Name: attributes idx_attributes_instance_id_execution_id_event_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.attributes
+    ADD CONSTRAINT idx_attributes_instance_id_execution_id_event_id UNIQUE (instance_id, execution_id, event_id);
+
+
+--
+-- Name: instances idx_instances_instance_id_execution_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.instances
+    ADD CONSTRAINT idx_instances_instance_id_execution_id UNIQUE (instance_id, execution_id);
+
+
+--
+-- Name: instances instances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.instances
+    ADD CONSTRAINT instances_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pending_events pending_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pending_events
+    ADD CONSTRAINT pending_events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schema_migrations
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: idx_activities_locked_until_queue; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_activities_locked_until_queue ON public.activities USING btree (locked_until, queue);
+
+
+--
+-- Name: idx_attributes_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_attributes_event_id ON public.attributes USING btree (event_id);
+
+
+--
+-- Name: idx_history_instance_id_execution_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_history_instance_id_execution_id ON public.history USING btree (instance_id, execution_id);
+
+
+--
+-- Name: idx_history_instance_id_execution_id_sequence_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_history_instance_id_execution_id_sequence_id ON public.history USING btree (instance_id, execution_id, sequence_id);
+
+
+--
+-- Name: idx_instances_locked_until_completed_at_queue; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_instances_locked_until_completed_at_queue ON public.instances USING btree (completed_at, locked_until, sticky_until, worker, queue);
+
+
+--
+-- Name: idx_instances_parent_instance_id_parent_execution_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_instances_parent_instance_id_parent_execution_id ON public.instances USING btree (parent_instance_id, parent_execution_id);
+
+
+--
+-- Name: idx_pending_events_inid_exid; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_pending_events_inid_exid ON public.pending_events USING btree (instance_id, execution_id);
+
+
+--
+-- Name: idx_pending_events_inid_exid_visible_at_schedule_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_pending_events_inid_exid_visible_at_schedule_event_id ON public.pending_events USING btree (instance_id, execution_id, visible_at, schedule_event_id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict 06PUqkTL2m8Xz2uUVrVzF5DQ8GwEh6MCzWN7NvAszvHtXvbmmEgefbbJBDOjU3l
+
