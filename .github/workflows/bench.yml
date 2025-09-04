@@ -314,7 +314,7 @@ jobs:
   combine-results:
     runs-on: ubuntu-latest
     needs: [mysql-bench, sqlite-bench, redis-bench, postgres-bench]
-    if: always() && (needs.postgres-bench.result == 'success' || needs.sqlite-bench.result == 'success' || needs.redis-bench.result == 'success') && github.event.issue.pull_request
+    if: always() && (needs.mysql-bench.result == 'success' || needs.sqlite-bench.result == 'success' || needs.redis-bench.result == 'success' || needs.postgres-bench.result == 'success') && github.event.issue.pull_request
     steps:
       - name: Download MySQL results
         if: needs.mysql-bench.result == 'success'
