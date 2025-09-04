@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/cschleiden/go-workflows/backend"
 	"github.com/cschleiden/go-workflows/backend/mysql"
+	"github.com/cschleiden/go-workflows/backend/postgres"
 	"github.com/cschleiden/go-workflows/backend/redis"
 	"github.com/cschleiden/go-workflows/backend/sqlite"
 	"github.com/cschleiden/go-workflows/diag"
@@ -68,6 +70,22 @@ func GetBackend(name string, opt ...backend.BackendOption) backend.Backend {
 		log.Println("Debug UI available at http://localhost:3000/diag")
 
 		return b
+
+	case "postgres":
+		{
+			// Create a new Postgres database
+			db, err := sql.Open("pgx", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "localhost", 5432, "postgres", "root", "postgres"))
+			if err != nil {
+				panic(err)
+			}
+
+			_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
+			if err != nil {
+				panic(err)
+			}
+
+			return postgres.NewPostgresBackend("localhost", 5432, "postgres", "root", name, postgres.WithBackendOptions(opt...), postgres.WithSSLModeOptions(postgres.Disable))
+		}
 
 	default:
 		panic("unknown backend " + *b)
