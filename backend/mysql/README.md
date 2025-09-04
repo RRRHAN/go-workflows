@@ -1,4 +1,4 @@
-# Sqlite backend
+# Mysql backend
 
 ## Adding a migration
 

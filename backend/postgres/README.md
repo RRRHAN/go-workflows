@@ -1,4 +1,4 @@
-# Sqlite backend
+# Postgres backend
 
 ## Adding a migration
 
