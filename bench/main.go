@@ -170,7 +170,7 @@ func getBackend(b string, opt ...backend.BackendOption) backend.Backend {
 		return b
 
 	case "postgres":
-		db, err := sql.Open("pgx", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "localhost", 5432, "postgres", "root", "postgres"))
+		db, err := sql.Open("pgx", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "localhost", 5432, "postgres", "", "postgres"))
 		if err != nil {
 			panic(err)
 		}
@@ -188,7 +188,7 @@ func getBackend(b string, opt ...backend.BackendOption) backend.Backend {
 		}
 
 		return monoprocess.NewMonoprocessBackend(
-			postgres.NewPostgresBackend("localhost", 5432, "postgres", "root", "bench", postgres.WithBackendOptions(opt...), postgres.WithSSLModeOptions(postgres.Disable),
+			postgres.NewPostgresBackend("localhost", 5432, "postgres", "", "bench", postgres.WithBackendOptions(opt...), postgres.WithSSLModeOptions(postgres.Disable),
 				postgres.WithPostgresOptions(func(db *sql.DB) {
 					db.SetMaxOpenConns(100)
 				})),
