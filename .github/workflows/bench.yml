@@ -313,14 +313,14 @@ jobs:
 
   combine-results:
     runs-on: ubuntu-latest
-    needs: [postgres-bench, sqlite-bench, redis-bench]
+    needs: [mysql-bench, sqlite-bench, redis-bench, postgres-bench]
     if: always() && (needs.postgres-bench.result == 'success' || needs.sqlite-bench.result == 'success' || needs.redis-bench.result == 'success') && github.event.issue.pull_request
     steps:
-      - name: Download Postgres results
-        if: needs.postgres-bench.result == 'success'
+      - name: Download MySQL results
+        if: needs.mysql-bench.result == 'success'
         uses: actions/download-artifact@v4
         with:
-          name: postgres-results
+          name: mysql-results
           path: ./results
         continue-on-error: true
 
@@ -340,13 +340,21 @@ jobs:
           path: ./results
         continue-on-error: true
 
+      - name: Download Postgres results
+        if: needs.postgres-bench.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: postgres-results
+          path: ./results
+        continue-on-error: true
+
       - name: Combine benchmark results
         run: |
           echo "# Benchmark Results" > combined-benchmark.md
           echo "" >> combined-benchmark.md
 
-          if [ -f "./results/postgres-benchmark.md" ]; then
-            cat ./results/postgres-benchmark.md >> combined-benchmark.md
+          if [ -f "./results/mysql-benchmark.md" ]; then
+            cat ./results/mysql-benchmark.md >> combined-benchmark.md
             echo "" >> combined-benchmark.md
           fi
 
@@ -357,6 +365,11 @@ jobs:
 
           if [ -f "./results/redis-benchmark.md" ]; then
             cat ./results/redis-benchmark.md >> combined-benchmark.md
+            echo "" >> combined-benchmark.md
+          fi
+
+          if [ -f "./results/postgres-benchmark.md" ]; then
+            cat ./results/postgres-benchmark.md >> combined-benchmark.md
             echo "" >> combined-benchmark.md
           fi
 
