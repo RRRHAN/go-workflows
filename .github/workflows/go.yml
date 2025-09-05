@@ -160,6 +160,10 @@ jobs:
 
       - name: Start Postgres
         run: sudo service postgresql start
+      
+      - name: Configure Postgres
+        run: |
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '';"
 
       - name: Tests
         run: |
