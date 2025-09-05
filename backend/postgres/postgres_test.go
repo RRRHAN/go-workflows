@@ -72,7 +72,7 @@ func TestPostgresBackendE2E(t *testing.T) {
 	var dbName string
 
 	test.EndToEndBackendTest(t, func(options ...backend.BackendOption) test.TestBackend {
-		db, err := sql.Open("pgx", fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=postgres sslmode=disable", testUser, testPassword))
+		db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@localhost:5432/postgres?sslmode=disable", testUser, testPassword))
 		if err != nil {
 			panic(err)
 		}
@@ -94,7 +94,7 @@ func TestPostgresBackendE2E(t *testing.T) {
 			panic(err)
 		}
 
-		db, err := sql.Open("pgx", fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=postgres sslmode=disable", testUser, testPassword))
+		db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@localhost:5432/postgres?sslmode=disable", testUser, testPassword))
 		if err != nil {
 			panic(err)
 		}
