@@ -1,4 +1,4 @@
-# Mysql backend
+# Postgres backend
 
 ## Adding a migration
 

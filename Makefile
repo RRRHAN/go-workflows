@@ -51,13 +51,18 @@ test-sqlite:
 	@echo "Running SQLite backend tests..."
 	$(GOTEST) $(TEST_FLAGS) -timeout $(TEST_TIMEOUT) github.com/cschleiden/go-workflows/backend/sqlite
 
+# Run Postgres backend tests
+test-postgres:
+	@echo "Running Postgres backend tests..."
+	$(GOTEST) $(TEST_FLAGS) -timeout $(TEST_TIMEOUT) github.com/cschleiden/go-workflows/backend/postgres
+
 # Run monoprocess backend tests
 test-monoprocess:
 	@echo "Running monoprocess backend tests..."
 	$(GOTEST) $(TEST_FLAGS) -timeout $(TEST_TIMEOUT) github.com/cschleiden/go-workflows/backend/monoprocess
 
 # Run all backend tests
-test-backends: test-redis test-mysql test-sqlite test-monoprocess
+test-backends: test-redis test-mysql test-sqlite test-postgres test-monoprocess
 
 # Lint the code
 lint:
