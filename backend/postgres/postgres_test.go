@@ -14,7 +14,7 @@ import (
 )
 
 const testUser = "postgres"
-const testPassword = "root"
+const testPassword = ""
 
 // Creating and dropping databases is terribly inefficient, but easiest for complete test isolation. For
 // the future consider nested transactions, or manually TRUNCATE-ing the tables in-between tests.
@@ -27,7 +27,7 @@ func Test_PostgresBackend(t *testing.T) {
 	var dbName string
 
 	test.BackendTest(t, func(options ...backend.BackendOption) test.TestBackend {
-		db, err := sql.Open("pgx", fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=postgres sslmode=disable", testUser, testPassword))
+		db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@localhost:5432/postgres?sslmode=disable", testUser, testPassword))
 		if err != nil {
 			panic(err)
 		}
@@ -49,7 +49,7 @@ func Test_PostgresBackend(t *testing.T) {
 			panic(err)
 		}
 
-		db, err := sql.Open("pgx", fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=postgres sslmode=disable", testUser, testPassword))
+		db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@localhost:5432/postgres?sslmode=disable", testUser, testPassword))
 		if err != nil {
 			panic(err)
 		}

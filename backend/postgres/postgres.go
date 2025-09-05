@@ -42,11 +42,11 @@ func NewPostgresBackend(host string, port int, user, password, database string, 
 	}
 
 	dsn := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		host,
-		port,
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		user,
 		password,
+		host,
+		port,
 		database,
 		options.SSlMode,
 	)
