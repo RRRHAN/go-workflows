@@ -288,7 +288,7 @@ jobs:
       
       - name: Configure Postgres
         run: |
-          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '';"
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'root';"
 
       - name: Run Postgres benchmarks
         run: |

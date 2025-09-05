@@ -74,7 +74,7 @@ func GetBackend(name string, opt ...backend.BackendOption) backend.Backend {
 	case "postgres":
 		{
 			// Create a new Postgres database
-			db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", "postgres", "", "localhost", 5432, "postgres"))
+			db, err := sql.Open("pgx", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", "postgres", "root", "localhost", 5432, "postgres"))
 			if err != nil {
 				panic(err)
 			}
